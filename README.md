@@ -16,6 +16,17 @@ MCP (Model Context Protocol) allows AI assistants like Puch to connect to extern
 ### 🖼️ Image Processing Tool
 - **Convert images to black & white** - Upload any image and get a monochrome version
 
+### 🎭 Meme Idea Tool
+- **Get meme template suggestions** - Provide a topic and mood to get 5 meme templates with captions
+- **Smart template matching** - Finds templates that match your topic and mood
+- **Creative captions** - Generates funny captions for each template
+
+### 🎨 Meme Generation Tool (Gemini)
+- **Generate real meme images** - Create custom memes using Google Gemini AI
+- **Multiple styles** - Choose from photo, cartoon, pixel, or comic styles
+- **Automatic captions** - Add classic meme text overlays
+- **Public URLs** - Get shareable links to your generated memes
+
 ### 🔐 Built-in Authentication
 - Bearer token authentication (required by Puch AI)
 - Validation tool that returns your phone number
@@ -51,11 +62,17 @@ Then edit `.env` and add your details:
 ```env
 AUTH_TOKEN=your_secret_token_here
 MY_NUMBER=919876543210
+
+# Gemini API Configuration (for meme generation)
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_IMAGE_MODEL=gemini-2.0-flash-exp
 ```
 
 **Important Notes:**
 - `AUTH_TOKEN`: This is your secret token for authentication. Keep it safe!
 - `MY_NUMBER`: Your WhatsApp number in format `{country_code}{number}` (e.g., `919876543210` for +91-9876543210)
+- `GEMINI_API_KEY`: Get this from [Google AI Studio](https://aistudio.google.com/app/apikey)
+- `GEMINI_IMAGE_MODEL`: Default model for image generation (can be changed later)
 
 ### Step 3: Run the Server
 
@@ -157,6 +174,57 @@ To get more detailed error messages:
 - **Join Puch AI Discord:** https://discord.gg/VMCnMvYx
 - **Check Puch AI MCP docs:** https://puch.ai/mcp
 - **Puch WhatsApp Number:** +91 99988 81729
+
+## Testing meme.idea Tool
+
+After connecting to your MCP server with `/mcp connect` or `/mcp use`, you can test the meme idea tool:
+
+```
+meme.idea topic="Monday mornings" mood="sarcastic"
+```
+
+This will return 5 meme template suggestions with:
+- Template names and preview URLs
+- Relevant tags
+- 2-3 creative captions for each template
+
+### Example Usage:
+- `meme.idea topic="work from home" mood="lazy"`
+- `meme.idea topic="coffee" mood="addicted"`
+- `meme.idea topic="programming" mood="frustrated"`
+
+## Generating Real Memes (Gemini)
+
+After connecting to your MCP server, you can generate actual meme images using Google Gemini AI:
+
+### Structured Parameters
+```
+meme.generate topic="Monday mornings" mood="sarcastic" style="photo" render_text=true
+meme.generate topic="Sunday holiday" mood="happy" style="cartoon" render_text=true
+meme.generate topic="Relationship goals" mood="wholesome" style="comic" render_text=true
+```
+
+### Natural Language (New!)
+Just describe what you want in plain English:
+```
+meme.generate.natural query="give me a sarcastic meme about my boss on office mondays"
+meme.generate.natural query="create a funny cartoon meme about cats being dramatic"
+meme.generate.natural query="make a wholesome meme about weekend plans"
+meme.generate.natural query="show me an angry meme about traffic without text"
+```
+
+### Parameters:
+- `topic`: What the meme is about (required)
+- `mood`: Optional mood or vibe (e.g., sarcastic, wholesome, dark)
+- `style`: Image style - "photo", "cartoon", "pixel", or "comic" (default: "photo")
+- `render_text`: Whether to add meme captions (default: true)
+
+### Output:
+- **Public URL**: `/media/<filename>.png` - Accessible via your tunnel
+- **Data URL**: Base64 encoded image (truncated for message size)
+- **Saved locally**: Images are stored in the `generated/` folder
+
+**Note**: All generated images include SynthID watermark per Google policy.
 
 ---
 
