@@ -1,0 +1,21 @@
+nohup: ignoring input
+E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py:6: DeprecationWarning: The `fastmcp.server.auth.providers.bearer` module is deprecated and will be removed in a future version. Please use `fastmcp.server.auth.providers.jwt.JWTVerifier` instead of this module's BearerAuthProvider.
+  from fastmcp.server.auth.providers.bearer import BearerAuthProvider, RSAKeyPair
+Traceback (most recent call last):
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 212, in <module>
+    asyncio.run(main())
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\asyncio\base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 208, in main
+    print("\U0001f680 Starting MCP server on http://0.0.0.0:8086")
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.12_3.12.2800.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f680' in position 0: character maps to <undefined>
