@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  meme-bot-mcp:
+    build: .
+    container_name: meme-bot-mcp
+    ports:
+      - "8086:8086"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - MCP_PORT=8086
+      - MCP_HOST=0.0.0.0
+      - AUTH_TOKEN=${AUTH_TOKEN:-devtoken_shared_for_team}
+      - MY_NUMBER=${MY_NUMBER:-your_number_here}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-your_gemini_key_here}
+    volumes:
+      # Mount logs directory for persistence
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - meme-bot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/mcp/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Cloudflare tunnel service
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    command: tunnel --url http://meme-bot-mcp:8086 --no-autoupdate
+    depends_on:
+      - meme-bot-mcp
+    restart: unless-stopped
+    networks:
+      - meme-bot-network
+    environment:
+      - TUNNEL_METRICS=0.0.0.0:2000
+    ports:
+      - "2000:2000" # Metrics port
+
+networks:
+  meme-bot-network:
+    driver: bridge
+
+volumes:
+  logs:
+    driver: local
