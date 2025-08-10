@@ -1,0 +1,5 @@
+nohup: ignoring input
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 947
+    random.shuffle(candidates)
+    ^^^^^^
+IndentationError: expected an indented block after 'if' statement on line 946

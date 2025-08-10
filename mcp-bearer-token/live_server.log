@@ -1,0 +1,41 @@
+E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py:6: DeprecationWarning: The `fastmcp.server.auth.providers.bearer` module is deprecated and will be removed in a future version. Please use `fastmcp.server.auth.providers.jwt.JWTVerifier` instead of this module's BearerAuthProvider.
+  from fastmcp.server.auth.providers.bearer import BearerAuthProvider, RSAKeyPair
+
+
++- FastMCP 2.0 --------------------------------------------------------------+
+|                                                                            |
+|        _ __ ___ ______           __  __  _____________    ____    ____     |
+|       _ __ ___ / ____/___ ______/ /_/  |/  / ____/ __ \  |___ \  / __ \    |
+|      _ __ ___ / /_  / __ `/ ___/ __/ /|_/ / /   / /_/ /  ___/ / / / / /    |
+|     _ __ ___ / __/ / /_/ (__  ) /_/ /  / / /___/ ____/  /  __/_/ /_/ /     |
+|    _ __ ___ /_/    \__,_/____/\__/_/  /_/\____/_/      /_____(_)____/      |
+|                                                                            |
+|                                                                            |
+|                                                                            |
+|    \U0001f5a5\ufe0f  Server name:     Meme Bot                                            |
+|    \U0001f4e6 Transport:       Streamable-HTTP                                     |
+|    \U0001f517 Server URL:      http://0.0.0.0:8086/mcp/                            |
+|                                                                            |
+|    \U0001f4da Docs:            https://gofastmcp.com                               |
+|    \U0001f680 Deploy:          https://fastmcp.cloud                               |
+|                                                                            |
+|    \U0001f3ce\ufe0f  FastMCP version: 2.11.2                                              |
+|    \U0001f91d MCP version:     1.12.2                                              |
+|                                                                            |
++----------------------------------------------------------------------------+
+
+
+[08/10/25 16:02:50] INFO     Starting MCP server 'Meme Bot' with server.py:1522
+                             transport 'streamable-http' on                    
+                             http://0.0.0.0:8086/mcp/                          
+C:\Users\MAYANK\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websockets\legacy\__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+  warnings.warn(  # deprecated in 14.0 - 2024-11-09
+C:\Users\MAYANK\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\uvicorn\protocols\websockets\websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+  from websockets.server import WebSocketServerProtocol
+INFO:     Started server process [30156]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('0.0.0.0', 8086): [winerror 10048] only one usage of each socket address (protocol/network address/port) is normally permitted
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+Starting MCP server on http://0.0.0.0:8086
