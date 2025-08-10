@@ -25,6 +25,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
+# Test imports to catch issues early
+RUN python test_imports.py
+
 # Make entrypoint executable
 RUN chmod +x docker-entrypoint.sh
 
