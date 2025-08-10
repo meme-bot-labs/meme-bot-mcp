@@ -35,9 +35,9 @@ USER memebot
 # Expose the port (Railway will override this with PORT env var)
 EXPOSE 8086
 
-# Health check for Railway
-HEALTHCHECK --interval=30s --timeout=30s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8086}/health || exit 1
+# Health check for Railway - increased start period for startup time
+HEALTHCHECK --interval=30s --timeout=30s --start-period=120s --retries=5 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
 
 # Set entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]

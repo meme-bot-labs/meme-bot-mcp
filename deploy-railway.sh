@@ -72,3 +72,4 @@ echo "🎯 Connect to MCP:"
 echo "   /mcp connect https://your-app.railway.app/mcp Bearer $AUTH_TOKEN"
 echo ""
 echo "🎉 Deployment complete! Your MCP Meme Bot is live on Railway!"
+
