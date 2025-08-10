@@ -41,3 +41,4 @@ else
     echo "❌ Container failed to start. Check logs:"
     docker logs meme-bot-mcp
 fi
+

@@ -150,8 +150,8 @@ async def enhanced_auth_middleware(request: Request, call_next):
     """
     Enhanced authentication middleware with multiple security checks
     """
-    # Skip auth for health checks and root endpoint
-    if request.url.path in ["/", "/health", "/mcp/health"]:
+    # Skip auth for health checks, readiness, and root endpoint
+    if request.url.path in ["/", "/health", "/readiness", "/mcp/health"]:
         return await call_next(request)
     
     # Check for Authorization header
@@ -214,8 +214,8 @@ async def rate_limiting_middleware(request: Request, call_next):
     """
     Simple rate limiting based on IP address
     """
-    # Skip rate limiting for health checks
-    if request.url.path in ["/", "/health", "/mcp/health"]:
+    # Skip rate limiting for health checks, readiness, and root endpoint
+    if request.url.path in ["/", "/health", "/readiness", "/mcp/health"]:
         return await call_next(request)
     
     client_ip = request.client.host if request.client else "unknown"
@@ -249,12 +249,36 @@ async def health_check():
     """
     Health check endpoint for Docker and monitoring
     """
-    return {
-        "status": "healthy",
-        "service": "MCP Meme Bot",
-        "version": "1.0.0",
-        "timestamp": time.time()
-    }
+    try:
+        # Perform basic health checks
+        checks = {
+            "server": "healthy",
+            "auth_token": "configured" if TOKEN else "missing",
+            "gemini_api": "configured" if GEMINI_API_KEY else "missing",
+            "my_number": "configured" if MY_NUMBER else "missing"
+        }
+        
+        # Overall status
+        status = "healthy" if all(v != "missing" for v in checks.values()) else "degraded"
+        
+        return {
+            "status": status,
+            "service": "MCP Meme Bot", 
+            "version": "1.0.0",
+            "timestamp": time.time(),
+            "checks": checks,
+            "environment": {
+                "railway": bool(os.environ.get("RAILWAY_ENVIRONMENT")),
+                "port": os.environ.get("PORT", "not_set"),
+                "host": os.environ.get("MCP_HOST", "not_set")
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": time.time()
+        }
 
 @mcp.app.get("/")
 async def root():
@@ -266,7 +290,28 @@ async def root():
         "status": "running",
         "endpoints": {
             "mcp": "/mcp/",
-            "health": "/health"
+            "health": "/health",
+            "readiness": "/readiness"
+        }
+    }
+
+@mcp.app.get("/readiness")
+async def readiness_check():
+    """
+    Readiness check for debugging startup issues
+    """
+    return {
+        "ready": True,
+        "service": "MCP Meme Bot",
+        "timestamp": time.time(),
+        "environment": {
+            "port": os.environ.get("PORT"),
+            "mcp_port": os.environ.get("MCP_PORT"),
+            "mcp_host": os.environ.get("MCP_HOST"),
+            "railway_env": os.environ.get("RAILWAY_ENVIRONMENT"),
+            "auth_token_set": bool(TOKEN),
+            "gemini_api_set": bool(GEMINI_API_KEY),
+            "my_number_set": bool(MY_NUMBER)
         }
     }
 
@@ -1922,11 +1967,20 @@ async def main():
         print(f"🚀 Starting MCP server on http://{host}:{port}")
         if os.environ.get("RAILWAY_ENVIRONMENT"):
             print(f"🚂 Railway Environment: {os.environ.get('RAILWAY_ENVIRONMENT')}")
+            print(f"🔐 Auth Token: {'✅ Set' if TOKEN else '❌ Missing'}")
+            print(f"🤖 Gemini API: {'✅ Set' if GEMINI_API_KEY else '❌ Missing'}")
+            print(f"📱 Phone Number: {'✅ Set' if MY_NUMBER else '❌ Missing'}")
     except Exception:
         # Fallback for terminals without UTF-8
         print(f"Starting MCP server on http://{host}:{port}")
     
-    await mcp.run_async("streamable-http", host=host, port=port)
+    try:
+        await mcp.run_async("streamable-http", host=host, port=port)
+    except Exception as e:
+        print(f"❌ Failed to start MCP server: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 if __name__ == "__main__":
     asyncio.run(main())
