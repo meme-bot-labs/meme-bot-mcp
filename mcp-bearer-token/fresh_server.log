@@ -1,0 +1,79 @@
+E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py:6: DeprecationWarning: The `fastmcp.server.auth.providers.bearer` module is deprecated and will be removed in a future version. Please use `fastmcp.server.auth.providers.jwt.JWTVerifier` instead of this module's BearerAuthProvider.
+  from fastmcp.server.auth.providers.bearer import BearerAuthProvider, RSAKeyPair
+
+
++- FastMCP 2.0 --------------------------------------------------------------+
+|                                                                            |
+|        _ __ ___ ______           __  __  _____________    ____    ____     |
+|       _ __ ___ / ____/___ ______/ /_/  |/  / ____/ __ \  |___ \  / __ \    |
+|      _ __ ___ / /_  / __ `/ ___/ __/ /|_/ / /   / /_/ /  ___/ / / / / /    |
+|     _ __ ___ / __/ / /_/ (__  ) /_/ /  / / /___/ ____/  /  __/_/ /_/ /     |
+|    _ __ ___ /_/    \__,_/____/\__/_/  /_/\____/_/      /_____(_)____/      |
+|                                                                            |
+|                                                                            |
+|                                                                            |
+|    \U0001f5a5\ufe0f  Server name:     Meme Bot                                            |
+|    \U0001f4e6 Transport:       Streamable-HTTP                                     |
+|    \U0001f517 Server URL:      http://0.0.0.0:8086/mcp/                            |
+|                                                                            |
+|    \U0001f4da Docs:            https://gofastmcp.com                               |
+|    \U0001f680 Deploy:          https://fastmcp.cloud                               |
+|                                                                            |
+|    \U0001f3ce\ufe0f  FastMCP version: 2.11.2                                              |
+|    \U0001f91d MCP version:     1.12.2                                              |
+|                                                                            |
++----------------------------------------------------------------------------+
+
+
+[08/10/25 16:03:58] INFO     Starting MCP server 'Meme Bot' with server.py:1522
+                             transport 'streamable-http' on                    
+                             http://0.0.0.0:8086/mcp/                          
+C:\Users\MAYANK\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\websockets\legacy\__init__.py:6: DeprecationWarning: websockets.legacy is deprecated; see https://websockets.readthedocs.io/en/stable/howto/upgrade.html for upgrade instructions
+  warnings.warn(  # deprecated in 14.0 - 2024-11-09
+C:\Users\MAYANK\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\site-packages\uvicorn\protocols\websockets\websockets_impl.py:17: DeprecationWarning: websockets.server.WebSocketServerProtocol is deprecated
+  from websockets.server import WebSocketServerProtocol
+INFO:     Started server process [21736]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8086 (Press CTRL+C to quit)
+Starting MCP server on http://0.0.0.0:8086
+INFO:     103.57.172.50:0 - "GET /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     103.57.172.50:0 - "GET /mcp/ HTTP/1.1" 401 Unauthorized
+INFO:     15.206.185.88:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     15.206.185.88:0 - "GET /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "GET /mcp/ HTTP/1.1" 200 OK
+INFO:     15.206.185.88:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "POST /mcp/ HTTP/1.1" 202 Accepted
+INFO:     15.206.185.88:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     15.206.185.88:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     15.206.185.88:0 - "DELETE /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     15.206.185.88:0 - "DELETE /mcp/ HTTP/1.1" 200 OK
+INFO:     52.66.71.111:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     52.66.71.111:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "GET /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "POST /mcp/ HTTP/1.1" 202 Accepted
+INFO:     52.66.71.111:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     52.66.71.111:0 - "GET /mcp/ HTTP/1.1" 200 OK
+INFO:     52.66.71.111:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "POST /mcp/ HTTP/1.1" 200 OK
+Reddit API response status: 200
+INFO:     52.66.71.111:0 - "DELETE /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     52.66.71.111:0 - "DELETE /mcp/ HTTP/1.1" 200 OK
+INFO:     13.233.247.115:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     13.233.247.115:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "GET /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "POST /mcp/ HTTP/1.1" 202 Accepted
+INFO:     13.233.247.115:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     13.233.247.115:0 - "GET /mcp/ HTTP/1.1" 200 OK
+INFO:     13.233.247.115:0 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "POST /mcp/ HTTP/1.1" 200 OK
+Reddit API response status: 200
+INFO:     13.233.247.115:0 - "DELETE /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     13.233.247.115:0 - "DELETE /mcp/ HTTP/1.1" 200 OK

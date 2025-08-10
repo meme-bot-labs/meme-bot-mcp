@@ -1,0 +1,5 @@
+nohup: ignoring input
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 614
+    r = await client.get("https://api.imgflip.com/get_memes", timeout=30)
+    ^
+SyntaxError: expected 'except' or 'finally' block

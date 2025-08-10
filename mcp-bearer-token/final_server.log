@@ -1,0 +1,4 @@
+nohup: ignoring input
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 1127
+    print(f"Created new quiz session: {session_id}")
+IndentationError: unexpected indent

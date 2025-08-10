@@ -1,0 +1,5 @@
+nohup: ignoring input
+  File "E:\Mission_MCP\meme-bot-mcp\mcp-bearer-token\mcp_starter.py", line 967
+    distractor_pool = [c for c in candidates if c["name"] != correct_tpl["name"]]
+    ^^^^^^^^^^^^^^^
+SyntaxError: expected 'except' or 'finally' block

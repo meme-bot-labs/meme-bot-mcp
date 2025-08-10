@@ -1,0 +1,61 @@
+MCP Server Dependencies
+fastmcp>=2.11.2
+mcp>=1.12.4
+
+Web Framework and HTTP
+starlette>=0.47.2
+uvicorn>=0.35.0
+httpx>=0.28.1
+
+Authentication and Security
+authlib>=1.6.1
+cryptography>=45.0.6
+
+Data Processing and Validation
+pydantic>=2.11.7
+pydantic-core>=2.33.2
+pydantic-settings>=2.10.1
+
+Environment and Configuration
+python-dotenv>=1.1.1
+dotenv>=0.9.9
+
+Image Processing and Generation
+google-genai>=0.3.0
+pillow>=11.3.0
+
+Web Scraping and Content Processing
+beautifulsoup4>=4.13.4
+markdownify>=1.1.0
+readabilipy>=0.3.0
+requests>=2.32.4
+lxml>=6.0.0
+html5lib>=1.1
+
+JSON and Data Handling
+jsonschema>=4.25.0
+jsonschema-path>=0.3.4
+jsonschema-specifications>=2025.4.1
+
+Utilities
+click>=8.2.1
+more-itertools>=10.7.0
+parse>=1.20.2
+pathable>=0.4.4
+six>=1.17.0
+certifi>=2025.8.3
+charset-normalizer>=3.4.2
+idna>=3.10
+urllib3>=2.5.0
+
+Development and Documentation
+rich>=14.1.0
+pygments>=2.19.2
+markdown-it-py>=3.0.0
+mdurl>=0.1.2
+
+Optional: Development tools (uncomment if needed)
+pytest>=7.0.0
+black>=22.0.0
+flake8>=4.0.0
+mypy>=1.0.0
