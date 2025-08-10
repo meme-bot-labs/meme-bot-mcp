@@ -6,7 +6,8 @@
 set -e
 
 # Default values - Railway sets PORT automatically
-MCP_HOST=${MCP_HOST:-"0.0.0.0"}
+# Use IPv6 dual-stack binding for Railway V2 compatibility
+MCP_HOST=${MCP_HOST:-$([ -n "$RAILWAY_ENVIRONMENT" ] && echo "::" || echo "0.0.0.0")}
 MCP_PORT=${PORT:-${MCP_PORT:-8086}}
 AUTH_TOKEN=${AUTH_TOKEN:-"devtoken_shared_for_team"}
 

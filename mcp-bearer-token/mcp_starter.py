@@ -1961,7 +1961,8 @@ async def answer_meme_quiz_game(
 async def main():
     # Railway compatibility - use PORT env var if available
     port = int(os.environ.get("PORT", os.environ.get("MCP_PORT", 8086)))
-    host = os.environ.get("MCP_HOST", "0.0.0.0")
+    # Railway V2 requires IPv6 binding - use "::" for dual-stack (IPv4+IPv6)
+    host = os.environ.get("MCP_HOST", "::" if os.environ.get("RAILWAY_ENVIRONMENT") else "0.0.0.0")
     
     try:
         print(f"🚀 Starting MCP server on http://{host}:{port}")
@@ -1975,9 +1976,39 @@ async def main():
         print(f"Starting MCP server on http://{host}:{port}")
     
     try:
+        print(f"📡 Attempting to bind to {host}:{port}")
+        
+        # Test if port is available before starting
+        import socket
+        try:
+            s = socket.socket(socket.AF_INET6 if "::" in host else socket.AF_INET, socket.SOCK_STREAM)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind((host, port))
+            s.close()
+            print(f"✅ Port {port} is available for binding")
+        except Exception as port_test_e:
+            print(f"⚠️  Port test failed: {port_test_e}")
+        
+        print(f"🚀 FastMCP server starting...")
         await mcp.run_async("streamable-http", host=host, port=port)
     except Exception as e:
         print(f"❌ Failed to start MCP server: {e}")
+        print(f"🔍 Host: {host}, Port: {port}")
+        print(f"🔍 Environment variables:")
+        print(f"   PORT: {os.environ.get('PORT', 'not set')}")
+        print(f"   MCP_HOST: {os.environ.get('MCP_HOST', 'not set')}")
+        print(f"   RAILWAY_ENVIRONMENT: {os.environ.get('RAILWAY_ENVIRONMENT', 'not set')}")
+        print(f"🔍 Checking if server dependencies are available:")
+        try:
+            import uvicorn
+            print(f"   uvicorn: ✅ {uvicorn.__version__}")
+        except ImportError:
+            print(f"   uvicorn: ❌ not found")
+        try:
+            import fastapi
+            print(f"   fastapi: ✅ {fastapi.__version__}")
+        except ImportError:
+            print(f"   fastapi: ❌ not found")
         import traceback
         traceback.print_exc()
         raise
