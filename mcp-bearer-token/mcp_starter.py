@@ -9,6 +9,10 @@ from mcp.server.auth.provider import AccessToken
 from mcp.types import TextContent, ImageContent, INVALID_PARAMS, INTERNAL_ERROR
 from pydantic import BaseModel, Field, AnyUrl
 
+# FastAPI imports for enhanced security
+from fastapi import Request, HTTPException
+from fastapi.responses import JSONResponse
+
 import markdownify
 import httpx
 import readabilipy
@@ -139,6 +143,132 @@ mcp = FastMCP(
     "Meme Bot",
     auth=SimpleBearerAuthProvider(TOKEN),
 )
+
+# --- Enhanced Authentication Middleware ---
+@mcp.app.middleware("http")
+async def enhanced_auth_middleware(request: Request, call_next):
+    """
+    Enhanced authentication middleware with multiple security checks
+    """
+    # Skip auth for health checks and root endpoint
+    if request.url.path in ["/", "/health", "/mcp/health"]:
+        return await call_next(request)
+    
+    # Check for Authorization header
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Missing Authorization header"}
+        )
+    
+    # Validate Bearer token format
+    if not auth_header.startswith("Bearer "):
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid Authorization header format. Expected 'Bearer <token>'"}
+        )
+    
+    # Extract and validate token
+    try:
+        token = auth_header.split(" ")[1]
+        if not token:
+            raise ValueError("Empty token")
+    except (IndexError, ValueError):
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid token format"}
+        )
+    
+    # Verify token against environment variable
+    expected_token = os.environ.get("AUTH_TOKEN")
+    if not expected_token:
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Server configuration error"}
+        )
+    
+    # Constant-time comparison to prevent timing attacks
+    if not hmac.compare_digest(token, expected_token):
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid authentication token"}
+        )
+    
+    # Additional security headers
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    
+    return response
+
+# --- Rate Limiting and Security Features ---
+request_counts = {}
+RATE_LIMIT_REQUESTS = 100  # requests per minute
+RATE_LIMIT_WINDOW = 60  # seconds
+
+@mcp.app.middleware("http")
+async def rate_limiting_middleware(request: Request, call_next):
+    """
+    Simple rate limiting based on IP address
+    """
+    # Skip rate limiting for health checks
+    if request.url.path in ["/", "/health", "/mcp/health"]:
+        return await call_next(request)
+    
+    client_ip = request.client.host if request.client else "unknown"
+    current_time = time.time()
+    
+    # Clean old entries
+    for ip in list(request_counts.keys()):
+        request_counts[ip] = [
+            timestamp for timestamp in request_counts[ip]
+            if current_time - timestamp < RATE_LIMIT_WINDOW
+        ]
+        if not request_counts[ip]:
+            del request_counts[ip]
+    
+    # Check rate limit
+    if client_ip not in request_counts:
+        request_counts[client_ip] = []
+    
+    if len(request_counts[client_ip]) >= RATE_LIMIT_REQUESTS:
+        return JSONResponse(
+            status_code=429,
+            content={"error": "Rate limit exceeded. Try again later."}
+        )
+    
+    request_counts[client_ip].append(current_time)
+    return await call_next(request)
+
+# --- Health Check Endpoint ---
+@mcp.app.get("/health")
+async def health_check():
+    """
+    Health check endpoint for Docker and monitoring
+    """
+    return {
+        "status": "healthy",
+        "service": "MCP Meme Bot",
+        "version": "1.0.0",
+        "timestamp": time.time()
+    }
+
+@mcp.app.get("/")
+async def root():
+    """
+    Root endpoint with basic info
+    """
+    return {
+        "service": "MCP Meme Bot",
+        "status": "running",
+        "endpoints": {
+            "mcp": "/mcp/",
+            "health": "/health"
+        }
+    }
 
 # --- Tool: validate (required by Puch) ---
 @mcp.tool
@@ -1784,12 +1914,19 @@ async def answer_meme_quiz_game(
 
 # --- Run MCP Server ---
 async def main():
+    # Railway compatibility - use PORT env var if available
+    port = int(os.environ.get("PORT", os.environ.get("MCP_PORT", 8086)))
+    host = os.environ.get("MCP_HOST", "0.0.0.0")
+    
     try:
-        print("🚀 Starting MCP server on http://0.0.0.0:8086")
+        print(f"🚀 Starting MCP server on http://{host}:{port}")
+        if os.environ.get("RAILWAY_ENVIRONMENT"):
+            print(f"🚂 Railway Environment: {os.environ.get('RAILWAY_ENVIRONMENT')}")
     except Exception:
         # Fallback for terminals without UTF-8
-        print("Starting MCP server on http://0.0.0.0:8086")
-    await mcp.run_async("streamable-http", host="0.0.0.0", port=8086)
+        print(f"Starting MCP server on http://{host}:{port}")
+    
+    await mcp.run_async("streamable-http", host=host, port=port)
 
 if __name__ == "__main__":
     asyncio.run(main())
