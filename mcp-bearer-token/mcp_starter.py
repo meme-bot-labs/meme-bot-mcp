@@ -1341,6 +1341,283 @@ async def fetch_trending_memes(
         return [TextContent(type="text", text=f"❌ Error fetching memes: {str(e)}")]
 
 
+# --- Safe Image Creator ---
+SAFE_IMAGE_DESCRIPTION = RichToolDescription(
+    description="🖼️ SAFE IMAGE CREATOR 🖼️ - Creates wholesome images with positive text! Educational and family-friendly content only.",
+    use_when="When user sends an emoji (😂, 🔥, 💀, 😭, 🤔, 🎉, etc.) or asks for a fun image - creates safe, positive images with uplifting messages.",
+    side_effects="Creates educational images with positive, encouraging text overlays. Completely safe for all audiences.",
+)
+
+# Emoji to meme context mapping (safe and wholesome)
+EMOJI_MEME_MAPPING = {
+    # Happy/Joy emotions
+    "😂": {"context": "extremely funny situation", "style": "wholesome", "keywords": ["hilarious", "laughing", "comedy", "funny"]},
+    "🤣": {"context": "rolling on floor laughing", "style": "wholesome", "keywords": ["hilarious", "can't stop laughing", "too funny"]},
+    "😄": {"context": "pure happiness and joy", "style": "wholesome", "keywords": ["happy", "cheerful", "positive"]},
+    "🎉": {"context": "celebration and achievement", "style": "wholesome", "keywords": ["celebration", "victory", "success"]},
+    "🥳": {"context": "party time and excitement", "style": "wholesome", "keywords": ["party", "celebration", "excited"]},
+    
+    # Sad/Crying emotions
+    "😭": {"context": "crying or emotional situation", "style": "wholesome", "keywords": ["crying", "emotional", "feelings"]},
+    "🥲": {"context": "happy tears or bittersweet", "style": "wholesome", "keywords": ["happy tears", "emotional", "touching"]},
+    "😢": {"context": "sad or disappointed", "style": "wholesome", "keywords": ["sad", "disappointed", "feelings"]},
+    
+    # Fire/Cool emotions
+    "🔥": {"context": "something is awesome or cool", "style": "wholesome", "keywords": ["fire", "cool", "trending", "awesome"]},
+    "💯": {"context": "perfect, 100% accurate", "style": "wholesome", "keywords": ["perfect", "accurate", "facts", "truth"]},
+    "✨": {"context": "magical or special moment", "style": "wholesome", "keywords": ["magical", "special", "sparkle"]},
+    
+    # Thinking/Confused emotions
+    "🤔": {"context": "thinking or pondering situation", "style": "classic", "keywords": ["thinking", "wondering", "pondering"]},
+    "🧐": {"context": "analyzing or being curious", "style": "classic", "keywords": ["analyzing", "curious", "investigating"]},
+    "😵": {"context": "mind blown or amazed", "style": "wholesome", "keywords": ["mind blown", "amazed", "surprised"]},
+    
+    # Skull/Death emotions (made safe)
+    "💀": {"context": "something is so funny it's overwhelming", "style": "wholesome", "keywords": ["hilarious", "funny", "can't even"]},
+    "☠️": {"context": "playful warning or caution", "style": "wholesome", "keywords": ["caution", "playful", "warning"]},
+    
+    # Love/Heart emotions
+    "❤️": {"context": "love and affection", "style": "wholesome", "keywords": ["love", "heart", "affection"]},
+    "💖": {"context": "sparkling love", "style": "wholesome", "keywords": ["love", "sparkling", "cute"]},
+    "🥰": {"context": "adorable and loving", "style": "wholesome", "keywords": ["adorable", "loving", "cute"]},
+    
+    # Angry/Frustrated emotions (made safe)
+    "😡": {"context": "frustrated or annoyed", "style": "wholesome", "keywords": ["frustrated", "annoyed", "grumpy"]},
+    "🤬": {"context": "very frustrated", "style": "wholesome", "keywords": ["frustrated", "upset", "annoyed"]},
+    "😤": {"context": "huffing with frustration", "style": "wholesome", "keywords": ["frustrated", "annoyed", "huffing"]},
+    
+    # Cool/Sunglasses emotions
+    "😎": {"context": "cool and confident", "style": "wholesome", "keywords": ["cool", "confident", "awesome"]},
+    "🕶️": {"context": "mysterious or cool", "style": "wholesome", "keywords": ["mysterious", "cool", "stylish"]},
+    
+    # Weird/Random emotions
+    "🤪": {"context": "silly or goofy", "style": "wholesome", "keywords": ["silly", "goofy", "playful"]},
+    "🙃": {"context": "playful or silly", "style": "wholesome", "keywords": ["playful", "silly", "fun"]},
+    "🤡": {"context": "funny or silly", "style": "wholesome", "keywords": ["funny", "silly", "entertaining"]},
+    
+    # Sleep/Tired emotions
+    "😴": {"context": "sleeping or tired", "style": "wholesome", "keywords": ["sleeping", "tired", "sleepy"]},
+    "🥱": {"context": "yawning or tired", "style": "wholesome", "keywords": ["yawning", "tired", "sleepy"]},
+    
+    # Money/Success emotions
+    "💰": {"context": "success and prosperity", "style": "wholesome", "keywords": ["success", "prosperity", "achievement"]},
+    "🤑": {"context": "excited about success", "style": "wholesome", "keywords": ["excited", "success", "happy"]},
+    
+    # Default fallback
+    "default": {"context": "general positive situation", "style": "wholesome", "keywords": ["positive", "funny", "relatable"]}
+}
+
+def _extract_emoji_from_text(text: str) -> str:
+    """Extract the first emoji from text"""
+    import re
+    # Unicode ranges for emojis
+    emoji_pattern = re.compile(
+        "["
+        "\U0001F600-\U0001F64F"  # emoticons
+        "\U0001F300-\U0001F5FF"  # symbols & pictographs
+        "\U0001F680-\U0001F6FF"  # transport & map symbols
+        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        "\U00002702-\U000027B0"  # dingbats
+        "\U000024C2-\U0001F251"
+        "]+", flags=re.UNICODE
+    )
+    
+    emojis = emoji_pattern.findall(text)
+    return emojis[0] if emojis else ""
+
+def _get_emoji_meme_context(emoji: str) -> dict:
+    """Get meme context for a specific emoji"""
+    # Direct match first
+    if emoji in EMOJI_MEME_MAPPING:
+        return EMOJI_MEME_MAPPING[emoji]
+    
+    # Try to match similar emojis by category
+    emoji_categories = {
+        "😂🤣😆😁😄😃😀": EMOJI_MEME_MAPPING["😂"],
+        "😭😢😿🥺😔": EMOJI_MEME_MAPPING["😭"],
+        "🔥💥⚡💯🚀": EMOJI_MEME_MAPPING["🔥"],
+        "🤔💭🧐🤨": EMOJI_MEME_MAPPING["🤔"],
+        "💀☠️👻": EMOJI_MEME_MAPPING["💀"],
+        "❤️💖💕💘🥰😍": EMOJI_MEME_MAPPING["❤️"],
+        "😡🤬😤😠💢": EMOJI_MEME_MAPPING["😡"],
+        "😎🕶️😏": EMOJI_MEME_MAPPING["😎"],
+        "🤪😜😝🙃🤡": EMOJI_MEME_MAPPING["🤪"],
+        "😴🥱😪": EMOJI_MEME_MAPPING["😴"],
+        "💰🤑💸💳": EMOJI_MEME_MAPPING["💰"],
+    }
+    
+    for category_emojis, context in emoji_categories.items():
+        if emoji in category_emojis:
+            return context
+    
+    # Return default if no match found
+    return EMOJI_MEME_MAPPING["default"]
+
+@mcp.tool(description=SAFE_IMAGE_DESCRIPTION.model_dump_json())
+async def create_safe_image(
+    symbol: Annotated[str, Field(description="The emoji or symbol to create a positive image from")],
+) -> list[TextContent | ImageContent]:
+    """Create a safe positive image based on an emoji"""
+    try:
+        # Extract emoji from input
+        emoji = _extract_emoji_from_text(symbol)
+        if not emoji:
+            # If no emoji found, treat the whole input as emoji
+            emoji = symbol.strip()
+        
+        # Educational positive messages only
+        positive_messages = {
+            "😂": {"top": "LAUGHTER IS THE", "bottom": "BEST MEDICINE"},
+            "🤣": {"top": "JOY BRINGS", "bottom": "HAPPINESS"},
+            "😄": {"top": "SMILE AND BE", "bottom": "HAPPY TODAY"},
+            "🎉": {"top": "CELEBRATE", "bottom": "YOUR SUCCESS"},
+            "🥳": {"top": "ENJOY GOOD", "bottom": "TIMES"},
+            "😭": {"top": "IT'S OK TO", "bottom": "FEEL EMOTIONS"},
+            "🥲": {"top": "TEARS OF", "bottom": "JOY"},
+            "😢": {"top": "TOMORROW IS A", "bottom": "NEW DAY"},
+            "🔥": {"top": "YOU ARE", "bottom": "AMAZING"},
+            "💯": {"top": "DO YOUR", "bottom": "BEST"},
+            "✨": {"top": "BELIEVE IN", "bottom": "YOURSELF"},
+            "🤔": {"top": "THINK POSITIVE", "bottom": "THOUGHTS"},
+            "🧐": {"top": "STAY", "bottom": "CURIOUS"},
+            "😵": {"top": "AMAZING", "bottom": "DISCOVERIES"},
+            "💀": {"top": "LAUGHTER", "bottom": "IS HEALTHY"},
+            "☠️": {"top": "BE CAREFUL AND", "bottom": "STAY SAFE"},
+            "❤️": {"top": "SPREAD", "bottom": "KINDNESS"},
+            "💖": {"top": "YOU ARE", "bottom": "LOVED"},
+            "🥰": {"top": "BE KIND TO", "bottom": "OTHERS"},
+            "😡": {"top": "TAKE A DEEP", "bottom": "BREATH"},
+            "🤬": {"top": "CALM DOWN AND", "bottom": "RELAX"},
+            "😤": {"top": "PATIENCE IS", "bottom": "A VIRTUE"},
+            "😎": {"top": "STAY", "bottom": "CONFIDENT"},
+            "🕶️": {"top": "BE", "bottom": "AWESOME"},
+            "🤪": {"top": "HAVE FUN AND", "bottom": "BE SILLY"},
+            "🙃": {"top": "LOOK ON THE", "bottom": "BRIGHT SIDE"},
+            "🤡": {"top": "MAKE OTHERS", "bottom": "SMILE"},
+            "😴": {"top": "GET ENOUGH", "bottom": "SLEEP"},
+            "🥱": {"top": "REST IS", "bottom": "IMPORTANT"},
+            "💰": {"top": "WORK HARD FOR", "bottom": "YOUR GOALS"},
+            "🤑": {"top": "CELEBRATE", "bottom": "ACHIEVEMENTS"}
+        }
+        
+        # Use educational positive messages only
+        if emoji in positive_messages:
+            top_text = positive_messages[emoji]["top"]
+            bottom_text = positive_messages[emoji]["bottom"]
+        else:
+            # Educational fallback for any other emoji
+            top_text = "STAY POSITIVE"
+            bottom_text = "AND BE KIND"
+        
+        # Get a random meme template
+        async with httpx.AsyncClient() as client:
+            templates = await _fetch_imgflip_templates(client)
+            if not templates:
+                raise McpError(ErrorData(code=INTERNAL_ERROR, message="Failed to fetch meme templates"))
+            
+            # Choose a template that works well for the emoji type
+            suitable_templates = []
+            if emoji in ["😂", "🤣", "💀"]:
+                # Funny emojis - use classic meme templates
+                funny_names = ["drake", "expanding", "distracted", "two", "woman", "change", "mind"]
+                suitable_templates = [t for t in templates if any(name in t["name"].lower() for name in funny_names)]
+            elif emoji in ["🔥", "💯", "😎"]:
+                # Cool emojis - use confident/success templates
+                cool_names = ["success", "wolf", "most", "interesting", "one", "does"]
+                suitable_templates = [t for t in templates if any(name in t["name"].lower() for name in cool_names)]
+            elif emoji in ["😭", "😢", "🥲"]:
+                # Sad emojis - use emotional templates
+                sad_names = ["crying", "disaster", "this", "fine", "sad"]
+                suitable_templates = [t for t in templates if any(name in t["name"].lower() for name in sad_names)]
+            
+            # If no suitable templates found, use any template
+            if not suitable_templates:
+                suitable_templates = templates
+            
+            chosen_template = random.choice(suitable_templates[:10])  # Pick from top 10
+            
+            # Download template image
+            template_url = chosen_template["image_url"]
+            img_response = await client.get(template_url, timeout=30)
+            if img_response.status_code != 200:
+                raise McpError(ErrorData(code=INTERNAL_ERROR, message="Failed to download template image"))
+            
+            # Process the image
+            img = Image.open(io.BytesIO(img_response.content))
+            
+            # Convert to RGB if needed
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            
+            # Create meme
+            meme = img.copy()
+            draw = ImageDraw.Draw(meme)
+            
+            # Font setup
+            style_config = MEME_STYLES[style]
+            font_size = int(meme.width * style_config["font_size_factor"])
+            
+            try:
+                try:
+                    font = ImageFont.truetype("impact.ttf", font_size)
+                except:
+                    font = ImageFont.truetype("arial.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
+            
+            # Helper function for outlined text
+            def draw_outlined_text(text, position, font):
+                outline_width = style_config["outline_width"]
+                # Draw black outline
+                for dx in range(-outline_width, outline_width + 1):
+                    for dy in range(-outline_width, outline_width + 1):
+                        if dx != 0 or dy != 0:
+                            draw.text((position[0]+dx, position[1]+dy), text, font=font, fill='black')
+                # Draw white text
+                draw.text(position, text, font=font, fill='white')
+            
+            # Add top text
+            if top_text:
+                wrapped_text = textwrap.fill(top_text, width=20)
+                text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+                x = (meme.width - text_width) // 2
+                y = 10
+                draw_outlined_text(wrapped_text, (x, y), font)
+            
+            # Add bottom text
+            if bottom_text:
+                wrapped_text = textwrap.fill(bottom_text, width=20)
+                text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
+                text_width = text_bbox[2] - text_bbox[0]
+                text_height = text_bbox[3] - text_bbox[1]
+                x = (meme.width - text_width) // 2
+                y = meme.height - text_height - 10
+                draw_outlined_text(wrapped_text, (x, y), font)
+            
+            # Convert to base64
+            buf = io.BytesIO()
+            meme.save(buf, format="PNG")
+            meme_bytes = buf.getvalue()
+            meme_base64 = base64.b64encode(meme_bytes).decode("utf-8")
+            
+            # Create response
+            response_text = (
+                f"🖼️ Here's your positive educational image for {emoji}!\n\n"
+                f"Message: {top_text} / {bottom_text}\n\n"
+                f"Educational content promoting positivity and kindness!"
+            )
+            
+            return [
+                TextContent(type="text", text=response_text),
+                ImageContent(type="image", mimeType="image/png", data=meme_base64)
+            ]
+            
+    except Exception as e:
+        return [TextContent(type="text", text=f"❌ Failed to create positive image: {str(e)}")]
+
+
 # REMOVED SIMPLE QUIZ - Using full-featured quiz only
 
 # Removed simple quiz implementation - using full-featured quiz only
