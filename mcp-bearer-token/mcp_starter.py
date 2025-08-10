@@ -145,7 +145,7 @@ mcp = FastMCP(
 )
 
 # --- Enhanced Authentication Middleware ---
-@mcp.app.middleware("http")
+@mcp.http_app().middleware("http")
 async def enhanced_auth_middleware(request: Request, call_next):
     """
     Enhanced authentication middleware with multiple security checks
@@ -209,7 +209,7 @@ request_counts = {}
 RATE_LIMIT_REQUESTS = 100  # requests per minute
 RATE_LIMIT_WINDOW = 60  # seconds
 
-@mcp.app.middleware("http")
+@mcp.http_app().middleware("http")
 async def rate_limiting_middleware(request: Request, call_next):
     """
     Simple rate limiting based on IP address
@@ -244,7 +244,7 @@ async def rate_limiting_middleware(request: Request, call_next):
     return await call_next(request)
 
 # --- Health Check Endpoint ---
-@mcp.app.get("/health")
+@mcp.http_app().get("/health")
 async def health_check():
     """
     Health check endpoint for Docker and monitoring
@@ -280,7 +280,7 @@ async def health_check():
             "timestamp": time.time()
         }
 
-@mcp.app.get("/")
+@mcp.http_app().get("/")
 async def root():
     """
     Root endpoint with basic info
@@ -295,7 +295,7 @@ async def root():
         }
     }
 
-@mcp.app.get("/readiness")
+@mcp.http_app().get("/readiness")
 async def readiness_check():
     """
     Readiness check for debugging startup issues
